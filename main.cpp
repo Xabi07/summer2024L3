@@ -8,9 +8,15 @@ float denom = 0;
 static DevI2C devI2c(PB_11,PB_10);
 static LSM6DSLSensor acc_gyro(&devI2c,0xD4,D4,D5); // high address
 
+/*This is a program that uses the LSM6DSL library to interface to the many sensors on board of the mBED device.
+This program calculates the Pitch angle and Roll angle of the mBED device and prints the data to screen. Two functions 
+were created to calculated the angles, inside each of the functions are the calculations required to obtain the 
+correct angles, then next two functions show how the calculations were performed
+*/
 
 
-float computeAnglePitch(int x, int y, int z){
+
+float computeAnglePitch(int x, int y, int z){   //function to calculate the Pith angle 
     float pitchres = 0;
     y = (float) y*y;
     z = (float) z*z;
@@ -23,7 +29,7 @@ float computeAnglePitch(int x, int y, int z){
 
     return pitchres;
 }
-float computeAngleRoll(int x, int y, int z){
+float computeAngleRoll(int x, int y, int z){    //function to calculate the Roll angle
     float rollres = 0;
     y = (float) y;
     z = (float) z*z;
@@ -36,7 +42,7 @@ float computeAngleRoll(int x, int y, int z){
 
     return rollres;
 }
-/* Simple main function */
+/* Simple main function to print the Roll and Pith of the mBED */
 int main() {
     uint8_t id;
     int32_t axes[3];
@@ -53,10 +59,10 @@ int main() {
 
     while(1) {
 
-        acc_gyro.get_x_axes(axes);
-        res = computeAnglePitch(axes[0], axes[1], axes[2]);
-        res1 = computeAngleRoll(axes[0], axes[1], axes[2]);
-        printf("LSM6DSL: %6d, %6d, %6d, %3.2f, %3.2f\r\n", axes[0], axes[1], axes[2], res, res1) ;
+        acc_gyro.get_x_axes(axes);      //accquires the data from the gyro before calling the compute functions
+        res = computeAnglePitch(axes[0], axes[1], axes[2]); //calls the Pitch compute function
+        res1 = computeAngleRoll(axes[0], axes[1], axes[2]); //calls the Roll compute function
+        printf("LSM6DSL: %6d, %6d, %6d, %3.2f, %3.2f\r\n", axes[0], axes[1], axes[2], res, res1) ; //prints the Pith and Roll information every 2 seconds
 
 
         thread_sleep_for(2000);
