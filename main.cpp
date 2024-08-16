@@ -4,6 +4,12 @@
 #define PI 3.141592654
 float denom = 0;
 //volatile float res = 0;
+//Pwmout led3(LED3);
+//DigitalOut led3(LED3);
+PwmOut l3(LED3);
+PwmOut l1(LED1);
+PwmOut l2(LED2);
+
 
 static DevI2C devI2c(PB_11,PB_10);
 static LSM6DSLSensor acc_gyro(&devI2c,0xD4,D4,D5); // high address
@@ -14,7 +20,9 @@ were created to calculated the angles, inside each of the functions are the calc
 correct angles, then next two functions show how the calculations were performed
 */
 
-
+int xvar = 0;
+int yvar = 0;
+int zvar = 0;
 
 float computeAnglePitch(int x, int y, int z){   //function to calculate the Pith angle 
     float pitchres = 0;
@@ -49,6 +57,9 @@ int main() {
     float res=0;
     float res1 = 0;
     acc_gyro.init(NULL);
+    l1 = 0.0;
+    l2 = 0.0;
+    l3 = 0.0;
 
     acc_gyro.enable_x();
     acc_gyro.enable_g();
@@ -57,15 +68,40 @@ int main() {
     acc_gyro.read_id(&id);
     printf("LSM6DSL accelerometer & gyroscope = 0x%X\r\n", id);
 
+    thread_sleep_for(2000);
+        //led3 = 0.5;
+    l1 = 1;
+    l2 = 1;
+    l3 = 1;
+    thread_sleep_for(2000);
+    l1 = 0.1;
+    l2 = 0.1;
+    l3 = 1;
+
     while(1) {
 
         acc_gyro.get_x_axes(axes);      //accquires the data from the gyro before calling the compute functions
         res = computeAnglePitch(axes[0], axes[1], axes[2]); //calls the Pitch compute function
         res1 = computeAngleRoll(axes[0], axes[1], axes[2]); //calls the Roll compute function
         printf("LSM6DSL: %6d, %6d, %6d, %3.2f, %3.2f\r\n", axes[0], axes[1], axes[2], res, res1) ; //prints the Pith and Roll information every 2 seconds
+        axes[0] = xvar;
+        axes[0] = yvar;
+        axes[0] = zvar;
+
+        //led3 = 1;
 
 
         thread_sleep_for(2000);
 
+
+       if(xvar > axes[0] || xvar < axes[0]){
+           l1 = 1.1;
+       }
+       else if(yvar >axes[1] || yvar < axes[1]){
+           l2 = 0.1;
+       }
+       else if(zvar >axes[2] || zvar < axes[2]){
+           l3 = 0.1;           
+       }
     }
 }
