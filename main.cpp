@@ -3,6 +3,9 @@
 
 #define PI 3.141592654
 float denom = 0;
+float led1var = 0;
+float led2var = 0;
+float led3var = 0;
 //volatile float res = 0;
 //Pwmout led3(LED3);
 //DigitalOut led3(LED3);
@@ -20,9 +23,9 @@ were created to calculated the angles, inside each of the functions are the calc
 correct angles, then next two functions show how the calculations were performed
 */
 
-int xvar = 0;
-int yvar = 0;
-int zvar = 0;
+volatile int32_t xvar = 0;
+volatile int32_t yvar = 0;
+volatile int32_t zvar = 0;
 
 float computeAnglePitch(int x, int y, int z){   //function to calculate the Pith angle 
     float pitchres = 0;
@@ -50,6 +53,37 @@ float computeAngleRoll(int x, int y, int z){    //function to calculate the Roll
 
     return rollres;
 }
+void incL1brightness(){
+    if(led1var == 1){
+        l1 = 1;
+        led1var = 1;
+    }
+    else if(led1var < 1){
+        led1var += 0.1;
+        l1 = led1var;
+    }
+
+}
+void decL1brightness(){
+    if(led1var <= 1 || led1var > 0){
+        led1var -= 1;
+    }
+    else if(led1var == 0){
+        led1var = 0.0;
+        l1 = led1var;
+    }
+
+}
+//void incL1brightness(float lled){
+//    if(led1var == 1){
+//        l1 = 1;
+ //       led1var = 1;
+//    }
+//    else if(led1var < 1){
+//        led1var += 0.1;
+//       l1 = led1var;
+//    }
+//}
 /* Simple main function to print the Roll and Pith of the mBED */
 int main() {
     uint8_t id;
@@ -87,21 +121,25 @@ int main() {
         axes[0] = xvar;
         axes[0] = yvar;
         axes[0] = zvar;
-
         //led3 = 1;
+        thread_sleep_for(2000);//if axes[0] has increased add 0.1% to brightness of Led 1
+
+       if(xvar > axes[0]){
+           incL1brightness();
+           }
+           else if(xvar < axes[0]){
+               decL1brightness();
+           } 
 
 
-        thread_sleep_for(2000);
-
-
-       if(xvar > axes[0] || xvar < axes[0]){
-           l1 = 1.1;
-       }
-       else if(yvar >axes[1] || yvar < axes[1]){
-           l2 = 0.1;
-       }
-       else if(zvar >axes[2] || zvar < axes[2]){
-           l3 = 0.1;           
-       }
     }
 }
+
+
+
+ //     if(xvar > axes[0]){
+ //          incL1brightness(float led1var);
+ //          }
+ //          else if(xvar < axes[0]){
+ //              decL1brightness();
+ //          } 
