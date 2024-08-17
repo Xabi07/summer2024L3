@@ -27,7 +27,7 @@ volatile int32_t xvar = 0;
 volatile int32_t yvar = 0;
 volatile int32_t zvar = 0;
 
-float computeAnglePitch(int x, int y, int z){   //function to calculate the Pith angle 
+float computeAnglePitch(int32_t x, int32_t y, int32_t z){   //function to calculate the Pith angle 
     float pitchres = 0;
     y = (float) y*y;
     z = (float) z*z;
@@ -40,7 +40,7 @@ float computeAnglePitch(int x, int y, int z){   //function to calculate the Pith
 
     return pitchres;
 }
-float computeAngleRoll(int x, int y, int z){    //function to calculate the Roll angle
+float computeAngleRoll(int32_t x, int32_t y, int32_t z){    //function to calculate the Roll angle
     float rollres = 0;
     y = (float) y;
     z = (float) z*z;
@@ -65,13 +65,57 @@ void incL1brightness(){
 
 }
 void decL1brightness(){
-    if(led1var <= 1 || led1var > 0){
-        led1var -= 1;
+    if(led1var <= 1 && led1var > 0){
+        led1var -= 0.1;
     }
     else if(led1var == 0){
-        led1var = 0.0;
+        led1var = 0.1;
         l1 = led1var;
     }
+
+}
+void incL2brightness(){
+    if(led2var == 1){
+        l2 = 1;
+        led2var = 1;
+    }
+    else if(led2var < 1){
+        led2var += 0.1;
+        l2 = led2var;
+    }
+
+}
+void decL2brightness(){
+    if(led2var <= 1 && led2var > 0){
+        led2var -= 0.1;
+    }
+    else if(led2var == 0){
+        led2var = 0.1;
+        l2 = led2var;
+    }
+
+}
+void incL3brightness(){
+    l3 = 1.0;
+//    if(led3var == 1){
+//        l3 = 1;
+//        led3var = 1;
+//    }
+//    else if(led3var < 1){
+//        led3var += 0.1;
+//        l3 = led3var;
+//    }
+
+}
+void decL3brightness(){
+    l3 = 0.1;
+//    if(led3var <= 1 && led3var > 0){
+//        led3var -= 0.1;
+//    }
+//    else if(led3var == 0){
+//        led3var = 0.1;
+//        l3 = led3var;
+//    }
 
 }
 //void incL1brightness(float lled){
@@ -107,10 +151,10 @@ int main() {
     l1 = 1;
     l2 = 1;
     l3 = 1;
-    thread_sleep_for(2000);
+    thread_sleep_for(3000);
     l1 = 0.1;
     l2 = 0.1;
-    l3 = 1;
+    l3 = 0.1;
 
     while(1) {
 
@@ -118,24 +162,54 @@ int main() {
         res = computeAnglePitch(axes[0], axes[1], axes[2]); //calls the Pitch compute function
         res1 = computeAngleRoll(axes[0], axes[1], axes[2]); //calls the Roll compute function
         printf("LSM6DSL: %6d, %6d, %6d, %3.2f, %3.2f\r\n", axes[0], axes[1], axes[2], res, res1) ; //prints the Pith and Roll information every 2 seconds
-        axes[0] = xvar;
-        axes[0] = yvar;
-        axes[0] = zvar;
+        xvar = axes[0];
+        yvar = axes[1];
+        zvar = axes[2];
         //led3 = 1;
-        thread_sleep_for(2000);//if axes[0] has increased add 0.1% to brightness of Led 1
+        thread_sleep_for(1000);//if axes[0] has increased add 0.1% to brightness of Led 1
 
-       if(xvar > axes[0]){
-           incL1brightness();
+       if(xvar > -100 && xvar < 100){
+           //incL1brightness();
+           l1 = 0.1;
            }
-           else if(xvar < axes[0]){
-               decL1brightness();
-           } 
+           else if((xvar > -300 && xvar <-100) || (xvar >100 && xvar < 300)){
+               l1 = 0.3;
+            }    //else if(xvar < axes[0]){
+            else if((xvar > -700 && xvar <-300) || (xvar >300 && xvar < 700)){
+               l1 = 0.6;
+            }    //else if(xvar < axes[0]){
+           else if((xvar > -1010 && xvar <-700) || (xvar >700 && xvar < 1010)){
+               l1 = 1;
+            }    //else if(xvar < axes[0]){
+       if(yvar > -100 && yvar < 100){
+           //incL1brightness();
+           l2 = 0.1;
+           }
+           else if((yvar > -300 && yvar <-100) || (yvar >100 && yvar < 300)){
+               l2 = 0.3;
+            }    //else if(xvar < axes[0]){
+            else if((yvar > -700 && yvar <-300) || (yvar >300 && yvar < 700)){
+               l2 = 0.6;
+            }    //else if(xvar < axes[0]){
+           else if((yvar > -1010 && yvar <-700) || (yvar >700 && yvar < 1010)){
+               l2 = 1;
+            }    //else if(xvar < axes[0]){
 
-
+       if(zvar > 500){
+           incL3brightness();
+           }
+           else if(zvar < 100){
+               decL3brightness();
+           }
     }
 }
 
-
+//       if(yvar > axes[1]){
+//           incL2brightness();
+//           }
+//           else if(yvar < axes[1]){
+//               decL2brightness();
+//           }
 
  //     if(xvar > axes[0]){
  //          incL1brightness(float led1var);
